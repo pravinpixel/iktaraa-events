@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iktaraa Events</title>
+
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+    <div class="ticket-container">
+        <div class="branding">
+            <img src="iktaraa.svg" alt="Iktaraa Logo">
+        </div>
+
+        <!-- <div class="event-tabs" id="eventTabs"></div> -->
+        <div class="poster">
+            <img id="eventPoster" src="/images/events.jpg" alt="Event Poster">
+        </div>
+
+        <div class="content">
+            <h1>Iktaraa presents <span id="eventName"></span></h1>
+            <div class="price">₹<span id="eventPrice"></span> per ticket</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="formContainer"></div>
+
+        <div class="divider"></div>
+
+        <!-- <div class="payment">
+      <form id="paymentForm"></form>
+      <p class="payment-note">🔒 Secure payment powered by Razorpay</p>
+    </div> -->
+        <div class="payment" id="paymentSection" style="display:none;">
+            <form id="paymentForm"></form>
+            <p class="payment-note" id="paymentNote">
+                🔒 Secure payment powered by Razorpay
+            </p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="events.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
