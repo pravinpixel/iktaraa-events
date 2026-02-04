@@ -40,6 +40,9 @@ function loadEvent(eventKey) {
   nameEl.textContent = event.name;
   priceEl.textContent = event.price;
 
+  const presentText = document.getElementById("presentText");
+  if (presentText) presentText.remove();
+
   paymentForm.innerHTML = `
     <script
       src="https://checkout.razorpay.com/v1/payment-button.js"
