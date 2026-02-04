@@ -10,7 +10,7 @@ const EVENTS = {
     id: "nagma",
     name: "Nagma Saraai",
     price: "₹400 per ticket",
-    poster: "images/nagma.png",
+    poster: "images/Nagma.png",
     paymentBtnId: "pl_SBxmzJ6iWpLYkd"
   }
 };
