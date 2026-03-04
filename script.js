@@ -30,6 +30,27 @@ function populateEventDropdown() {
 }
 
 
+// function loadEvent(eventKey) {
+//   if (!eventKey) return;
+
+//   const event = EVENTS[eventKey];
+//   currentEventKey = eventKey;
+
+//   posterEl.src = event.poster;
+//   nameEl.textContent = event.name;
+//   priceEl.textContent = event.price;
+
+//   const presentText = document.getElementById("presentText");
+//   if (presentText) presentText.remove();
+
+//   paymentForm.innerHTML = `
+//     <script
+//       src="https://checkout.razorpay.com/v1/payment-button.js"
+//       data-payment_button_id="${event.paymentBtnId}"
+//       async>
+//     <\/script>
+//   `;
+// }
 function loadEvent(eventKey) {
   if (!eventKey) return;
 
@@ -38,18 +59,31 @@ function loadEvent(eventKey) {
 
   posterEl.src = event.poster;
   nameEl.textContent = event.name;
-  priceEl.textContent = event.price;
+  priceEl.textContent = event.price || "";
 
   const presentText = document.getElementById("presentText");
   if (presentText) presentText.remove();
 
-  paymentForm.innerHTML = `
-    <script
-      src="https://checkout.razorpay.com/v1/payment-button.js"
-      data-payment_button_id="${event.paymentBtnId}"
-      async>
-    <\/script>
-  `;
+  const payBtn = document.getElementById("payNowBtn");
+
+  // 🔹 If price does NOT exist or is 0 → Don't load Razorpay
+  if (!event.price || event.price === "0" || event.price === 0) {
+    paymentForm.innerHTML = ""; // Remove Razorpay button if any
+    payBtn.textContent = "Submit";
+    payBtn.disabled = false;
+  } else {
+    // 🔹 If price exists → Load Razorpay
+    payBtn.textContent = "Proceed to Pay";
+    payBtn.disabled = false;
+
+    paymentForm.innerHTML = `
+      <script
+        src="https://checkout.razorpay.com/v1/payment-button.js"
+        data-payment_button_id="${event.paymentBtnId}"
+        async>
+      <\/script>
+    `;
+  }
 }
 
 
@@ -121,12 +155,44 @@ function showPaymentButton() {
 }
 
 
+// function submitForm() {
+//   const payBtn = document.getElementById("payNowBtn");
+//   payBtn.disabled = true;
+
+//   const data = {
+//     eventName: EVENTS[currentEventKey].name,
+//     name: document.getElementById("name").value,
+//     email: document.getElementById("email").value,
+//     mobile: document.getElementById("mobile").value,
+//     attendedBefore: document.querySelector('input[name="attended"]:checked').value,
+//     source: document.querySelector('input[name="source"]:checked').value
+//   };
+
+//   fetch("https://script.google.com/macros/s/AKfycbxVX0irwZzY2RaPErJulNsLJ2g3pGKi2QMXumYrAvF216EI50mtilZQQ5SfqT4LXzRuwg/exec", {
+//     method: "POST",
+//     mode: "no-cors",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(data)
+//   })
+//   .then(() => {
+//     showPaymentButton();
+//     showToast("Details saved successfully! Please proceed to payment 💳", "success");
+
+//   })
+//   .catch(() => {
+//     showToast("Network error. Please try again ❌", "error");
+
+//     payBtn.disabled = false;
+//   });
+// }
 function submitForm() {
   const payBtn = document.getElementById("payNowBtn");
   payBtn.disabled = true;
 
+  const event = EVENTS[currentEventKey];
+
   const data = {
-    eventName: EVENTS[currentEventKey].name,
+    eventName: event.name,
     name: document.getElementById("name").value,
     email: document.getElementById("email").value,
     mobile: document.getElementById("mobile").value,
@@ -141,19 +207,29 @@ function submitForm() {
     body: JSON.stringify(data)
   })
   .then(() => {
-    showPaymentButton();
-    // alert("Details saved successfully! Please proceed to payment.");
-    showToast("Details saved successfully! Please proceed to payment 💳", "success");
+
+    if (!event.price || event.price === "0" || event.price === 0) {
+
+      showToast("Thank you for your registration! 🎉", "success");
+
+      payBtn.textContent = "Registered";
+      payBtn.disabled = true;
+
+      document.getElementById("paymentSection").style.display = "none";
+
+    } else {
+
+      showToast("Details saved successfully! Please proceed to payment 💳", "success");
+      showPaymentButton();
+
+    }
 
   })
   .catch(() => {
-    // alert("Network error. Please try again.");
     showToast("Network error. Please try again ❌", "error");
-
     payBtn.disabled = false;
   });
 }
-
 
 function showToast(message, type = "success", duration = 3000) {
   const toast = document.getElementById("toast");
