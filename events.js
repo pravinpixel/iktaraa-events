@@ -1,11 +1,11 @@
 const EVENTS = {
-  // kaapi: {
-  //   id: "kaapi",
-  //   name: "Carnatic Fusion",
-  //   price: "₹300 per ticket",
-  //   poster: "images/carnatic.png",
-  //   paymentBtnId: "pl_SBxkmmq9QMFkIQ"
-  // },
+  kaapi: {
+    id: "kaapi",
+    name: "Kaapi Ragam",
+    price: "₹300 per ticket",
+    poster: "images/kaapi_ragam_5.png",
+    paymentBtnId: "pl_SBxkmmq9QMFkIQ"
+  },
   // nagma: {
   //   id: "nagma",
   //   name: "Nagma Saraai",
