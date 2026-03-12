@@ -13,11 +13,11 @@ const EVENTS = {
   //   poster: "images/Nagma.png",
   //   paymentBtnId: "pl_SBxmzJ6iWpLYkd"
   // },
-  sax: {
-    id: "sax",
-    name: "A Saxophone Ensemble",
+  // sax: {
+    // id: "sax",
+    // name: "A Saxophone Ensemble",
     // price: "₹400 per ticket",
-    poster: "images/events.jpg",
+    // poster: "images/events.jpg",
     // paymentBtnId: "pl_SBxmzJ6iWpLYkd"
-  }
+  // }
 };
