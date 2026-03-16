@@ -4,7 +4,8 @@ const EVENTS = {
     name: "Kaapi Ragam",
     price: "₹300 per ticket",
     poster: "images/kaapi_ragam_5.png",
-    paymentBtnId: "pl_SBxkmmq9QMFkIQ"
+    // paymentBtnId: "pl_SBxkmmq9QMFkIQ"
+    paymentBtnId: "pl_SR3vtHqKwxgswA"
   },
   // nagma: {
   //   id: "nagma",
