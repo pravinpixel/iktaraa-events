@@ -42,6 +42,18 @@ body {
     }
 }
 
+.description {
+    margin-top: 20px;
+    padding: 18px;
+    background: linear-gradient(135deg, #fff8f0, #ffffff);
+    border-left: 4px solid #c08b2f;
+    border-radius: 10px;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-line;
+}
+
 /* Branding */
 .branding {
     background: var(--secondary);
@@ -269,4 +281,12 @@ body {
 
 .select-label option {
   color: #111;
+}
+
+.error {
+  display: block;
+  color: #dc2626;
+  font-size: 13px;
+  margin-top: 4px;
+  margin-bottom: 10px;
 }

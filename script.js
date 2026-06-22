@@ -4,15 +4,21 @@ const posterEl = document.getElementById("eventPoster");
 const nameEl = document.getElementById("eventName");
 const priceEl = document.getElementById("eventPrice");
 const paymentForm = document.getElementById("paymentForm");
+const descriptionEl = document.getElementById("description");
 
+// Load form
 fetch("fields.html")
   .then(res => res.text())
   .then(html => {
     document.getElementById("formContainer").innerHTML = html;
-    populateEventDropdown();
-    initFormLogic();
-  });
 
+  populateEventDropdown();
+  initFormLogic();
+
+  })
+  .catch(err => {
+    console.error("Failed to load form:", err);
+  });
 
 function populateEventDropdown() {
   const select = document.getElementById("eventSelect");
@@ -38,92 +44,101 @@ function loadEvent(eventKey) {
   posterEl.src = event.poster;
   nameEl.textContent = event.name;
   priceEl.textContent = event.price || "";
+  descriptionEl.textContent = event.description || "";
 
   const presentText = document.getElementById("presentText");
   if (presentText) presentText.remove();
 
   const payBtn = document.getElementById("payNowBtn");
 
-  // 🔹 If price does NOT exist or is 0 → Don't load Razorpay
   if (!event.price || event.price === "0" || event.price === 0) {
-    paymentForm.innerHTML = ""; // Remove Razorpay button if any
+    paymentForm.innerHTML = "";
     payBtn.textContent = "Submit";
-    payBtn.disabled = false;
   } else {
-    // 🔹 If price exists → Load Razorpay
     payBtn.textContent = "Proceed to Pay";
-    payBtn.disabled = false;
-
-    paymentForm.innerHTML = `
-      <script
-        src="https://checkout.razorpay.com/v1/payment-button.js"
-        data-payment_button_id="${event.paymentBtnId}"
-        async>
-      <\/script>
-    `;
+    paymentForm.innerHTML = "";
   }
+
+  validateForm();
 }
 
-
-Object.keys(EVENTS).forEach(key => {
-  const btn = document.createElement("button");
-  btn.textContent = EVENTS[key].name;
-  btn.dataset.event = key;
-  btn.onclick = () => loadEvent(key);
-  tabsEl.appendChild(btn);
-});
-
-loadEvent(currentEventKey);
-
-// ---------------- FORM LOGIC ----------------
-
 function initFormLogic() {
-  const inputs = document.querySelectorAll("input, select");
   const payBtn = document.getElementById("payNowBtn");
+  const mobileInput = document.getElementById("mobile");
 
-  function checkFormValidity() {
-    const eventSelected = document.getElementById("eventSelect").value;
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const mobile = document.getElementById("mobile").value.trim();
-    const attended = document.querySelector('input[name="attended"]:checked');
-    const source = document.querySelector('input[name="source"]:checked');
-
-    payBtn.disabled = !(
-      eventSelected &&
-      name &&
-      email &&
-      mobile &&
-      attended &&
-      source
-    );
-  }
-
-  inputs.forEach(el => {
-    el.addEventListener("input", checkFormValidity);
-    el.addEventListener("change", checkFormValidity);
+  mobileInput.addEventListener("input", function () {
+    this.value = this.value.replace(/\D/g, "").slice(0, 10);
   });
 
+  document.addEventListener("input", validateForm);
+  document.addEventListener("change", validateForm);
+
   payBtn.addEventListener("click", submitForm);
+
+  validateForm();
+}
+
+function validateForm() {
+  const payBtn = document.getElementById("payNowBtn");
+
+  const eventSelected = document.getElementById("eventSelect")?.value || "";
+  const name = document.getElementById("name")?.value.trim() || "";
+  const email = document.getElementById("email")?.value.trim() || "";
+  const mobile = document.getElementById("mobile")?.value.trim() || "";
+
+  const attended = document.querySelector(
+    'input[name="attended"]:checked'
+  );
+
+  const source = document.querySelector(
+    'input[name="source"]:checked'
+  );
+
+  const emailError = document.getElementById("emailError");
+  const mobileError = document.getElementById("mobileError");
+
+  const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
+  const mobileRegex = /^[6-9]\d{9}$/;
+
+  if (emailError) {
+    emailError.textContent =
+      email && !emailRegex.test(email)
+        ? "Please enter a valid email address"
+        : "";
+  }
+
+  if (mobileError) {
+    mobileError.textContent =
+      mobile && !mobileRegex.test(mobile)
+        ? "Please enter a valid 10-digit mobile number"
+        : "";
+  }
+
+  const isValid =
+    currentEventKey &&
+    eventSelected &&
+    name &&
+    emailRegex.test(email) &&
+    mobileRegex.test(mobile) &&
+    attended &&
+    source;
+
+  payBtn.disabled = !isValid;
 }
 
 function showPaymentButton() {
-
   const paymentSection = document.getElementById("paymentSection");
-  const paymentForm = document.getElementById("paymentForm");
-
-  if (!paymentForm) {
-    console.error("paymentForm not found");
-    return;
-  }
 
   paymentSection.style.display = "block";
-
   paymentForm.innerHTML = "";
 
   const script = document.createElement("script");
-  script.src = "https://checkout.razorpay.com/v1/payment-button.js";
+
+  script.src =
+    "https://checkout.razorpay.com/v1/payment-button.js";
+
   script.async = true;
+
   script.setAttribute(
     "data-payment_button_id",
     EVENTS[currentEventKey].paymentBtnId
@@ -132,9 +147,25 @@ function showPaymentButton() {
   paymentForm.appendChild(script);
 }
 
-
 function submitForm() {
   const payBtn = document.getElementById("payNowBtn");
+
+  const email = document.getElementById("email").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+
+  const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
+  const mobileRegex = /^[6-9]\d{9}$/;
+
+  if (!emailRegex.test(email)) {
+    showToast("Please enter a valid email address", "error");
+    return;
+  }
+
+  if (!mobileRegex.test(mobile)) {
+    showToast("Please enter a valid mobile number", "error");
+    return;
+  }
+
   payBtn.disabled = true;
 
   const event = EVENTS[currentEventKey];
@@ -142,50 +173,69 @@ function submitForm() {
   const data = {
     eventName: event.name,
     name: document.getElementById("name").value,
-    email: document.getElementById("email").value,
-    mobile: document.getElementById("mobile").value,
-    attendedBefore: document.querySelector('input[name="attended"]:checked').value,
-    source: document.querySelector('input[name="source"]:checked').value
+    email,
+    mobile,
+    attendedBefore:
+      document.querySelector(
+        'input[name="attended"]:checked'
+      ).value,
+    source:
+      document.querySelector(
+        'input[name="source"]:checked'
+      ).value
   };
-  fetch("https://script.google.com/macros/s/AKfycbxVX0irwZzY2RaPErJulNsLJ2g3pGKi2QMXumYrAvF216EI50mtilZQQ5SfqT4LXzRuwg/exec", {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
 
-    if (!event.price || event.price === "0" || event.price === 0) {
-
-      showToast("Thank you for your registration! 🎉", "success");
-
-      payBtn.textContent = "Registered";
-      payBtn.disabled = true;
-
-      document.getElementById("paymentSection").style.display = "none";
-
-    } else {
-
-      showToast("Details saved successfully! Please proceed to payment 💳", "success");
-      showPaymentButton();
-
+  fetch(
+    "https://script.google.com/macros/s/AKfycbxVX0irwZzY2RaPErJulNsLJ2g3pGKi2QMXumYrAvF216EI50mtilZQQ5SfqT4LXzRuwg/exec",
+    {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
     }
+  )
+    .then(() => {
+      if (!event.price || event.price === "0" || event.price === 0) {
+        showToast(
+          "Thank you for your registration! 🎉",
+          "success"
+        );
 
-  })
-  .catch(() => {
-    showToast("Network error. Please try again ❌", "error");
-    payBtn.disabled = false;
-  });
-}
+    payBtn.textContent = "Registered";
+    payBtn.disabled = true;
 
-function showToast(message, type = "success", duration = 3000) {
-  const toast = document.getElementById("toast");
+    document.getElementById(
+          "paymentSection"
+        ).style.display = "none";
+      } else {
+        showToast(
+          "Details saved successfully! Please proceed to payment 💳",
+          "success"
+        );
 
-  toast.textContent = message;
-  toast.className = `toast show ${type}`;
+        showPaymentButton();
+      }
+    })
+    .catch(() => {
+      showToast(
+        "Network error. Please try again ❌",
+        "error"
+      );
 
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, duration);
-}
+      payBtn.disabled = false;
+    });
 
+      }
+
+      function showToast(message, type = "success", duration = 3000) {
+        const toast = document.getElementById("toast");
+
+        toast.textContent = message;
+        toast.className = `toast show ${type}`;
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, duration);
+      }

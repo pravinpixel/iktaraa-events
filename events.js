@@ -10,6 +10,7 @@ const EVENTS = {
     id: "nagma",
     name: "Nagma Saraai",
     price: "₹600 per ticket",
+    description: "Ticket includes a complimentary beverage from Kreate by Kraft",
     poster: "images/nagma_2.png",
     paymentBtnId: "pl_SBxmzJ6iWpLYkd"
   },

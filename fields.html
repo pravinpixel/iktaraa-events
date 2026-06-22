@@ -12,7 +12,9 @@
 
     <input type="text" id="name" name="name" placeholder="Your Name" required>
     <input type="email" id="email" name="email" placeholder="Email ID" required>
-    <input type="tel" id="mobile" name="mobile" placeholder="Mobile Number" required>
+    <small id="emailError" class="error"></small>
+    <input type="tel" id="mobile" name="mobile" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required>
+    <small id="mobileError" class="error"></small>
 
     <p>Have you attended this event before?</p>
     <label><input type="radio" name="attended" value="Yes" required> Yes</label>
